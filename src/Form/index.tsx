@@ -29,20 +29,69 @@ const Form: React.FC<Props> = props => {
   };
 
   const handleSubmitForm = () => {
-    // Validar que sea una operación válida con try catch
-    // Validar que la operación no regrese Infinity
-    // Validar que la operación no regrese NaN
+    // Validar que todos los input tengan info
+    if (
+      formValues.nombreProgramador.length < 1 ||
+      formValues.TME.length < 1 ||
+      formValues.numeroPrograma.length < 1 ||
+      formValues.operacionRealizar.length < 1
+    ) {
+      setFormError("Llena todos los campos");
+      return;
+    }
+
+    if (
+      !(
+        formValues.operacionRealizar.indexOf("+") > -1 ||
+        formValues.operacionRealizar.indexOf("-") > -1 ||
+        formValues.operacionRealizar.indexOf("*") > -1 ||
+        formValues.operacionRealizar.indexOf("/") > -1
+      )
+    ) {
+      setFormError("Ingresa una operación válida");
+      return;
+    }
+
+    try {
+      const op = eval(formValues.operacionRealizar);
+      if (isNaN(op) || !isFinite(op)) {
+        setFormError("Ingresa una operación válida");
+        return;
+      }
+    } catch (err) {
+      setFormError("Ingresa una operación válida");
+      return;
+    }
 
     // Validar que TME sea un número entero mayor a cero
+    if (
+      !Number.isInteger(+formValues.TME) ||
+      +formValues.TME < 1 ||
+      isNaN(+formValues.TME)
+    ) {
+      setFormError("Ingresa un TME entero mayor a cero");
+      return;
+    }
 
     // Validar que Número de programa sea un número único
+    if (
+      props.procesos.find(
+        proceso =>
+          proceso.numeroPrograma &&
+          +proceso.numeroPrograma == +formValues.numeroPrograma
+      )
+    ) {
+      setFormError("Ya existe ese número de programa");
+      return;
+    }
+
     setCapturedProcesos(capturedProcesos + 1);
     props.handleProcesosUpdate({
-      TME: 1,
-      nombreProgramador: "Erick",
-      numeroPrograma: 1,
-      operacionRealizar: "2-2",
-      resultadoOperacion: "0"
+      TME: +formValues.TME,
+      nombreProgramador: formValues.nombreProgramador,
+      numeroPrograma: +formValues.numeroPrograma,
+      operacionRealizar: formValues.operacionRealizar,
+      resultadoOperacion: eval(formValues.operacionRealizar)
     });
     setFormValues({
       nombreProgramador: "",
@@ -50,7 +99,6 @@ const Form: React.FC<Props> = props => {
       TME: "",
       numeroPrograma: ""
     });
-    setFormError("");
   };
 
   if (valTotalProcesos !== "") {
