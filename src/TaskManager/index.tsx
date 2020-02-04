@@ -213,6 +213,19 @@ const TaskManager: React.FC<Props> = props => {
                         : procesoEjecucion?.tiempoTranscurrido}
                     </td>
                   </tr>
+                  <tr>
+                    <td>Tiempo Restante</td>
+                    <td>
+                      {procesoEjecucion?.tiempoTranscurrido == -1
+                        ? ""
+                        : procesoEjecucion &&
+                          procesoEjecucion.TME &&
+                          procesoEjecucion.tiempoTranscurrido
+                        ? procesoEjecucion.TME -
+                          procesoEjecucion.tiempoTranscurrido
+                        : procesoEjecucion?.tiempoTranscurrido}
+                    </td>
+                  </tr>
                 </tbody>
               </Table>
             </Col>
