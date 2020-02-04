@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import TaskManager from "./TaskManager";
-import Form from "./Form";
+import FormProcesos from "./Form";
+import { Container, Row, Col } from "react-bootstrap";
 
 export interface IProceso {
   nombreProgramador: string;
@@ -25,11 +26,17 @@ const App: React.FC = () => {
   };
 
   return showForm ? (
-    <Form
-      procesos={procesos}
-      handleProcesosUpdate={actualizarProcesosList}
-      handleShowForm={setShowForm}
-    />
+    <Container>
+      <Row>
+        <Col>
+          <FormProcesos
+            procesos={procesos}
+            handleProcesosUpdate={actualizarProcesosList}
+            handleShowForm={setShowForm}
+          />
+        </Col>
+      </Row>
+    </Container>
   ) : (
     <TaskManager procesos={procesos} />
   );

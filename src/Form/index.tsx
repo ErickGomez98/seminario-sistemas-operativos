@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { IProceso } from "../App";
+import { Form, Button, Alert } from "react-bootstrap";
 
 interface Props {
   handleProcesosUpdate: (proceso: IProceso) => void;
@@ -7,7 +8,7 @@ interface Props {
   procesos: IProceso[];
 }
 
-const Form: React.FC<Props> = props => {
+const FormProcesos: React.FC<Props> = props => {
   const [totalProcesos, setTotalProcesos] = useState<number>(0);
   const [valTotalProcesos, setValTotalProcesos] = useState<string>("");
   const [capturedProcesos, setCapturedProcesos] = useState<number>(0);
@@ -99,6 +100,7 @@ const Form: React.FC<Props> = props => {
       TME: "",
       numeroPrograma: ""
     });
+    setFormError("");
   };
 
   if (valTotalProcesos !== "") {
@@ -107,65 +109,93 @@ const Form: React.FC<Props> = props => {
 
   return totalProcesos === 0 ? (
     <div>
-      <input
-        type="text"
-        value={valTotalProcesos}
-        onChange={e => {
-          setValTotalProcesos(e.target.value);
-        }}
-      />
-      <button onClick={handleContinuarClick}>continuar</button>
+      <Form>
+        <Form.Group>
+          <Form.Label>Cantidad de Procesos</Form.Label>
+          <Form.Control
+            type="text"
+            value={valTotalProcesos}
+            onChange={(e: any) => {
+              setValTotalProcesos(e.target.value);
+            }}
+            placeholder="Ingresa la cantidad de procesos"
+          />
+        </Form.Group>
+      </Form>
+      <Button onClick={handleContinuarClick} variant="primary">
+        continuar
+      </Button>
     </div>
   ) : capturedProcesos <= totalProcesos ? (
     <div>
-      <input
-        type="text"
-        placeholder="Nombre de Programador"
-        value={formValues.nombreProgramador}
-        onChange={e => {
-          setFormValues({
-            ...formValues,
-            nombreProgramador: e.target.value
-          });
-        }}
-      />
-      <input
-        type="text"
-        placeholder="Operación a realizar"
-        value={formValues.operacionRealizar}
-        onChange={e => {
-          setFormValues({
-            ...formValues,
-            operacionRealizar: e.target.value
-          });
-        }}
-      />
-      <input
-        type="text"
-        placeholder="Tiempo Máximo Estimado"
-        value={formValues.TME}
-        onChange={e => {
-          setFormValues({
-            ...formValues,
-            TME: e.target.value
-          });
-        }}
-      />
-      <input
-        type="text"
-        placeholder="Número de Programa"
-        value={formValues.numeroPrograma}
-        onChange={e => {
-          setFormValues({
-            ...formValues,
-            numeroPrograma: e.target.value
-          });
-        }}
-      />
-      {formError ? <div>hay errores: {formError}</div> : null}
-      <button onClick={handleSubmitForm}>Guardar</button>
+      <Form>
+        <Form.Group>
+          <Form.Label>Nombre de Programador</Form.Label>
+          <Form.Control
+            type="text"
+            value={formValues.nombreProgramador}
+            onChange={(e: any) => {
+              setFormValues({
+                ...formValues,
+                nombreProgramador: e.target.value
+              });
+            }}
+            placeholder="Nombre de programador"
+          />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>Operación a Realizar</Form.Label>
+          <Form.Control
+            type="text"
+            value={formValues.operacionRealizar}
+            onChange={(e: any) => {
+              setFormValues({
+                ...formValues,
+                operacionRealizar: e.target.value
+              });
+            }}
+            placeholder="Operación a realizar"
+          />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>Tiempo máximo estimado</Form.Label>
+          <Form.Control
+            type="text"
+            value={formValues.TME}
+            onChange={(e: any) => {
+              setFormValues({
+                ...formValues,
+                TME: e.target.value
+              });
+            }}
+            placeholder="Tiempo máximo estimado"
+          />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>Número de programa</Form.Label>
+          <Form.Control
+            type="text"
+            value={formValues.numeroPrograma}
+            onChange={(e: any) => {
+              setFormValues({
+                ...formValues,
+                numeroPrograma: e.target.value
+              });
+            }}
+            placeholder="Número de Programa"
+          />
+        </Form.Group>
+      </Form>
+      {formError ? (
+        <Alert variant="danger">
+          <b>Error</b>: {formError}
+        </Alert>
+      ) : null}
+      <Button onClick={handleSubmitForm} variant="primary">
+        Guardar
+      </Button>
     </div>
   ) : null;
 };
 
-export default Form;
+export default FormProcesos;
