@@ -142,7 +142,7 @@ const TaskManager: React.FC<Props> = props => {
         <Col>
           <Row>
             <Col>
-              <h2>Procesos</h2>
+              <h2>Lotes</h2>
               <hr />
             </Col>
           </Row>

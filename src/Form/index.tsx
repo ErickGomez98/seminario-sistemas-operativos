@@ -46,7 +46,8 @@ const FormProcesos: React.FC<Props> = props => {
         formValues.operacionRealizar.indexOf("+") > -1 ||
         formValues.operacionRealizar.indexOf("-") > -1 ||
         formValues.operacionRealizar.indexOf("*") > -1 ||
-        formValues.operacionRealizar.indexOf("/") > -1
+        formValues.operacionRealizar.indexOf("/") > -1 ||
+        formValues.operacionRealizar.indexOf("%") > -1
       )
     ) {
       setFormError("Ingresa una operación válida");
