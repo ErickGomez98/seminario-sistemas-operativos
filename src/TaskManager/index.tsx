@@ -40,6 +40,7 @@ function useInterval(callback: any, delay: any) {
 const TaskManager: React.FC<Props> = props => {
   const [lotes, setLotes] = useState<ILote[]>([]);
   const [staticLotes, setStaticLotes] = useState<ILote[]>([]);
+  const [loteActivo, setLoteActivo] = useState<ILote[]>([]);
   const [c, setC] = useState<boolean>(false);
   const [stopped, setStopped] = useState<boolean>(false);
   const [procesosFinalizado, setProcesosFinalizado] = useState<IProceso[]>([]);
@@ -82,7 +83,6 @@ const TaskManager: React.FC<Props> = props => {
           } else {
             setStopped(true);
             setProcesoEjecucion({
-              nombreProgramador: "",
               operacionRealizar: "",
               resultadoOperacion: "",
               tiempoTranscurrido: -1,
@@ -153,15 +153,17 @@ const TaskManager: React.FC<Props> = props => {
                 <Table striped bordered hover size="sm">
                   <thead>
                     <tr>
-                      <th>Nombre</th>
+                      <th>ID</th>
                       <th>TME</th>
+                      <th>TT</th>
                     </tr>
                   </thead>
                   <tbody>
                     {lote.procesos.map(lote => {
                       return (
                         <tr key={lote.numeroPrograma}>
-                          <td>{lote.nombreProgramador}</td>
+                          <td>{lote.numeroPrograma}</td>
+                          <td>{lote.TME}</td>
                           <td>{lote.TME}</td>
                         </tr>
                       );
@@ -190,10 +192,6 @@ const TaskManager: React.FC<Props> = props => {
                         ? ""
                         : procesoEjecucion?.numeroPrograma}
                     </td>
-                  </tr>
-                  <tr>
-                    <td>Nombre de Programador</td>
-                    <td>{procesoEjecucion?.nombreProgramador}</td>
                   </tr>
                   <tr>
                     <td>Operación a Realizar</td>

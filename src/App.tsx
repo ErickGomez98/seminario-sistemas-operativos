@@ -4,7 +4,6 @@ import FormProcesos from "./Form";
 import { Container, Row, Col } from "react-bootstrap";
 
 export interface IProceso {
-  nombreProgramador: string;
   operacionRealizar: string;
   resultadoOperacion: string;
   TME?: number;
@@ -21,8 +20,8 @@ const App: React.FC = () => {
   const [showForm, setShowForm] = useState<boolean>(true);
   const [procesos, setProcesos] = useState<IProceso[]>([]);
 
-  const actualizarProcesosList = (proceso: IProceso) => {
-    setProcesos([...procesos, proceso]);
+  const actualizarProcesosList = (p: IProceso[]) => {
+    setProcesos(p);
   };
 
   return showForm ? (
