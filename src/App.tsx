@@ -5,9 +5,11 @@ import { Container, Row, Col } from "react-bootstrap";
 
 export interface IProceso {
   operacionRealizar: string;
-  resultadoOperacion: string;
-  TME?: number;
+  resultadoOperacion: string | number;
+  TME: number;
   numeroPrograma?: number;
+  tiempoTranscurrido: number;
+  tiempoRestante: number;
 }
 
 export interface ILote {

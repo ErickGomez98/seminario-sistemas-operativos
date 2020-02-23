@@ -29,8 +29,10 @@ const FormProcesos: React.FC<Props> = props => {
     const proceso: IProceso = {
       numeroPrograma: id,
       operacionRealizar: op,
-      resultadoOperacion: result,
-      TME: Math.floor(Math.random() * 18) + 8
+      resultadoOperacion: Number.parseFloat(result).toFixed(2),
+      TME: Math.floor(Math.random() * 18) + 8,
+      tiempoRestante: 0,
+      tiempoTranscurrido: 0
     };
     return proceso;
   };
