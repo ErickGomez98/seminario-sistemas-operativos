@@ -48,7 +48,7 @@ const TaskManager: React.FC<Props> = props => {
     { tiempoTranscurrido: number } & IProceso
   >();
   const [time, setTime] = useState<number>(0);
-  const timeInterval = 100;
+  const timeInterval = 200;
 
   useEffect(() => {
     const arr = chunk(props.procesos, 5);
@@ -75,12 +75,6 @@ const TaskManager: React.FC<Props> = props => {
   };
 
   const shouldFinish = () => {
-    console.log(
-      procesosFinalizado.length,
-      staticLotes.reduce((count, lote) => count + lote.procesos.length, 0),
-      procesosFinalizado.length ===
-        staticLotes.reduce((count, lote) => count + lote.procesos.length, 0)
-    );
     return (
       procesosFinalizado.length ===
       staticLotes.reduce((count, lote) => count + lote.procesos.length, 0)
@@ -181,14 +175,10 @@ const TaskManager: React.FC<Props> = props => {
       console.log("ya no tengo", copyCurrentLote.procesos.length);
       const tmpLotes = JSON.parse(JSON.stringify(lotes));
       const tmpLote = tmpLotes.shift();
-      // setLotes(tmpLotes);
       console.log("actual lotes", lotes);
       console.log("new lotes", tmpLotes);
+      setLotes(tmpLotes);
       setLoteActivo(tmpLote);
-
-      // HAY UN PROBLEMA YA QUE NO ESTA MODIFICANDO EL NUEVO LOTE CUANDO
-      // UN LOTE TERMINA, COMO QUE SI LO CAMBIA PERO EL CONTEO DE PROCESOS ESTA MAL
-      // if (tmpLote.procesos) proceso = tmpLote.procesos.shift();
     } else {
       setLoteActivo(copyCurrentLote);
     }
