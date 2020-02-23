@@ -40,7 +40,7 @@ function useInterval(callback: any, delay: any) {
 const TaskManager: React.FC<Props> = props => {
   const [lotes, setLotes] = useState<ILote[]>([]);
   const [staticLotes, setStaticLotes] = useState<ILote[]>([]);
-  const [loteActivo, setLoteActivo] = useState<ILote[]>([]);
+  const [loteActivo, setLoteActivo] = useState<Partial<ILote>>();
   const [c, setC] = useState<boolean>(false);
   const [stopped, setStopped] = useState<boolean>(false);
   const [procesosFinalizado, setProcesosFinalizado] = useState<IProceso[]>([]);
@@ -48,7 +48,7 @@ const TaskManager: React.FC<Props> = props => {
     { tiempoTranscurrido: number } & IProceso
   >();
   const [time, setTime] = useState<number>(0);
-  const timeInterval = 1000;
+  const timeInterval = 100;
 
   useEffect(() => {
     const arr = chunk(props.procesos, 5);
@@ -61,8 +61,10 @@ const TaskManager: React.FC<Props> = props => {
       };
       tmpLotes.push(tmpLote);
     });
+    const t = JSON.parse(JSON.stringify(tmpLotes));
+    if (tmpLotes.length > 0) setLoteActivo(tmpLotes.shift());
     setLotes(tmpLotes);
-    setStaticLotes(tmpLotes);
+    setStaticLotes(t);
   }, []);
 
   const getLoteId = (proceso: IProceso) => {
@@ -72,40 +74,95 @@ const TaskManager: React.FC<Props> = props => {
     return lote[0];
   };
 
+  const shouldFinish = () => {
+    console.log(
+      procesosFinalizado.length,
+      staticLotes.reduce((count, lote) => count + lote.procesos.length, 0),
+      procesosFinalizado.length ===
+        staticLotes.reduce((count, lote) => count + lote.procesos.length, 0)
+    );
+    return (
+      procesosFinalizado.length ===
+      staticLotes.reduce((count, lote) => count + lote.procesos.length, 0)
+    );
+  };
+
   useInterval(
     () => {
-      if (procesoEjecucion) {
-        if (procesoEjecucion?.TME === procesoEjecucion.tiempoTranscurrido + 1) {
-          setProcesosFinalizado([...procesosFinalizado, procesoEjecucion]);
-          const p = shiftProceso();
-          if (p) {
-            setProcesoEjecucion({ ...p, tiempoTranscurrido: 0 });
+      // Finaliza cuando la cantidad de procesos terminados es igual
+      // a la cantidad de procesos iniciales
+      if (shouldFinish()) {
+        console.log("ya acaba 1");
+        setStopped(true);
+      } else {
+        if (procesoEjecucion) {
+          if (
+            procesoEjecucion?.TME ===
+            procesoEjecucion.tiempoTranscurrido + 1
+          ) {
+            console.log("el proceso ejecucion", procesoEjecucion);
+            setProcesosFinalizado([...procesosFinalizado, procesoEjecucion]);
+            const p = shiftProceso();
+            console.log("el p", p);
+            if (p) {
+              setProcesoEjecucion({ ...p, tiempoTranscurrido: 0 });
+            } else {
+              console.log("ya acaba 2");
+              setStopped(true);
+              setProcesoEjecucion({
+                operacionRealizar: "",
+                resultadoOperacion: "",
+                tiempoTranscurrido: -1,
+                TME: -1,
+                numeroPrograma: -1
+              });
+            }
           } else {
-            setStopped(true);
             setProcesoEjecucion({
-              operacionRealizar: "",
-              resultadoOperacion: "",
-              tiempoTranscurrido: -1,
-              TME: -1,
-              numeroPrograma: -1
+              ...procesoEjecucion,
+              tiempoTranscurrido: procesoEjecucion.tiempoTranscurrido
+                ? procesoEjecucion.tiempoTranscurrido + 1
+                : 1
             });
           }
         } else {
-          setProcesoEjecucion({
-            ...procesoEjecucion,
-            tiempoTranscurrido: procesoEjecucion.tiempoTranscurrido
-              ? procesoEjecucion.tiempoTranscurrido + 1
-              : 1
-          });
+          console.log("ya se acabo");
         }
       }
+      // a la cantidad inicial de procesos
+      // if (procesoEjecucion) {
+      //   if (procesoEjecucion?.TME === procesoEjecucion.tiempoTranscurrido + 1) {
+      //     setProcesosFinalizado([...procesosFinalizado, procesoEjecucion]);
+      //     const p = shiftProceso();
+      //     if (p) {
+      //       setProcesoEjecucion({ ...p, tiempoTranscurrido: 0 });
+      //     } else {
+      //       setStopped(true);
+      //       setProcesoEjecucion({
+      //         operacionRealizar: "",
+      //         resultadoOperacion: "",
+      //         tiempoTranscurrido: -1,
+      //         TME: -1,
+      //         numeroPrograma: -1
+      //       });
+      //     }
+      //   } else {
+      //     setProcesoEjecucion({
+      //       ...procesoEjecucion,
+      //       tiempoTranscurrido: procesoEjecucion.tiempoTranscurrido
+      //         ? procesoEjecucion.tiempoTranscurrido + 1
+      //         : 1
+      //     });
+      //   }
+      // }
       setTime(time => time + 1);
-      if (!procesoEjecucion) setStopped(true);
+      // if (!procesoEjecucion) setStopped(true);
     },
     !stopped ? timeInterval : null
   );
 
   useEffect(() => {
+    // Simplemente es para inicializar el primer proceso
     if (lotes.length !== 0) {
       if (!c) {
         setC(true);
@@ -116,50 +173,71 @@ const TaskManager: React.FC<Props> = props => {
   }, [lotes]);
 
   const shiftProceso = () => {
-    const copyLotes = JSON.parse(JSON.stringify(lotes));
-    const newLotes: ILote[] = [];
+    const copyCurrentLote: Partial<ILote> = Object.assign({}, loteActivo);
     let proceso: any = null;
-    let r = false;
-    copyLotes.map((lote: ILote) => {
-      if (!r) {
-        if (lote.procesos.length > 0) {
-          //@ts-ignore
-          proceso = lote.procesos.shift();
-          r = true;
-        }
-        if (lote.procesos.length > 0) newLotes.push(lote);
-      } else {
-        newLotes.push(lote);
-      }
-    });
-    setLotes(newLotes);
+    if (copyCurrentLote.procesos) proceso = copyCurrentLote.procesos.shift();
+
+    if (copyCurrentLote.procesos?.length === 0) {
+      console.log("ya no tengo", copyCurrentLote.procesos.length);
+      const tmpLotes = JSON.parse(JSON.stringify(lotes));
+      const tmpLote = tmpLotes.shift();
+      // setLotes(tmpLotes);
+      console.log("actual lotes", lotes);
+      console.log("new lotes", tmpLotes);
+      setLoteActivo(tmpLote);
+
+      // HAY UN PROBLEMA YA QUE NO ESTA MODIFICANDO EL NUEVO LOTE CUANDO
+      // UN LOTE TERMINA, COMO QUE SI LO CAMBIA PERO EL CONTEO DE PROCESOS ESTA MAL
+      // if (tmpLote.procesos) proceso = tmpLote.procesos.shift();
+    } else {
+      setLoteActivo(copyCurrentLote);
+    }
+    // const copyLotes = JSON.parse(JSON.stringify(lotes));
+    // const newLotes: ILote[] = [];
+    // let proceso: any = null;
+    // let r = false;
+    // copyLotes.map((lote: ILote) => {
+    //   if (!r) {
+    //     if (lote.procesos.length > 0) {
+    //       //@ts-ignore
+    //       proceso = lote.procesos.shift();
+    //       r = true;
+    //     }
+    //     if (lote.procesos.length > 0) newLotes.push(lote);
+    //   } else {
+    //     newLotes.push(lote);
+    //   }
+    // });
+    // setLotes(newLotes);
+    // setProces
+    console.log("el proceso shift", proceso);
     return proceso;
   };
-
+  const lote = lotes[0];
   return (
     <Container>
       <Row>
         <Col>
           <Row>
             <Col>
-              <h2>Lotes</h2>
+              <h2>Lotes Restantes: {lotes.length}</h2>
               <hr />
             </Col>
           </Row>
-          {lotes.map(lote => {
-            return (
-              <Row key={lote.id}>
-                <h6>Lote #{lote.id}</h6>
-                <Table striped bordered hover size="sm">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>TME</th>
-                      <th>TT</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {lote.procesos.map(lote => {
+          {loteActivo && (
+            <Row key={loteActivo.id}>
+              <h6>Lote #{loteActivo.id}</h6>
+              <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>TME</th>
+                    <th>TT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loteActivo.procesos &&
+                    loteActivo.procesos.map(lote => {
                       return (
                         <tr key={lote.numeroPrograma}>
                           <td>{lote.numeroPrograma}</td>
@@ -168,11 +246,10 @@ const TaskManager: React.FC<Props> = props => {
                         </tr>
                       );
                     })}
-                  </tbody>
-                </Table>
-              </Row>
-            );
-          })}
+                </tbody>
+              </Table>
+            </Row>
+          )}
         </Col>
         <Col>
           <Row>
@@ -246,7 +323,7 @@ const TaskManager: React.FC<Props> = props => {
               {procesosFinalizado.map(p => {
                 return (
                   <tr key={p.numeroPrograma}>
-                    <td>{getLoteId(p).id}</td>
+                    {/* <td>{getLoteId(p).id}</td> */}
                     <td>{p.numeroPrograma}</td>
                     <td>{p.TME}</td>
                     <td>{p.operacionRealizar}</td>
