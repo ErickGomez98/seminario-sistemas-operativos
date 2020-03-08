@@ -12,12 +12,6 @@ export interface IProceso {
   tiempoRestante: number;
 }
 
-export interface ILote {
-  id: number;
-  procesos: IProceso[];
-  maxProcesos: number;
-}
-
 const App: React.FC = () => {
   const [showForm, setShowForm] = useState<boolean>(true);
   const [procesos, setProcesos] = useState<IProceso[]>([]);

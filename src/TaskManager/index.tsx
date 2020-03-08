@@ -1,22 +1,9 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { IProceso, ILote } from "../App";
+import { IProceso } from "../App";
 import { Container, Row, Col, Table } from "react-bootstrap";
 interface Props {
   procesos: IProceso[];
 }
-
-const chunk = (array: any, size: any) => {
-  const chunked_arr = [];
-  for (let i = 0; i < array.length; i++) {
-    const last = chunked_arr[chunked_arr.length - 1];
-    if (!last || last.length === size) {
-      chunked_arr.push([array[i]]);
-    } else {
-      last.push(array[i]);
-    }
-  }
-  return chunked_arr;
-};
 
 function useInterval(callback: any, delay: any) {
   const savedCallback = useRef();
@@ -38,9 +25,6 @@ function useInterval(callback: any, delay: any) {
 }
 
 const TaskManager: React.FC<Props> = props => {
-  const [lotes, setLotes] = useState<ILote[]>([]);
-  const [staticLotes, setStaticLotes] = useState<ILote[]>([]);
-  const [loteActivo, setLoteActivo] = useState<Partial<ILote>>();
   const [c, setC] = useState<boolean>(false);
   const [finished, setFinished] = useState<boolean>(false);
   const [stopped, setStopped] = useState<boolean>(false);
@@ -52,22 +36,7 @@ const TaskManager: React.FC<Props> = props => {
   const timeInterval = 100;
 
   useEffect(() => {
-    const arr = chunk(props.procesos, 5);
-    const tmpLotes: ILote[] = [];
-    arr.map((v, k) => {
-      const tmpLote: ILote = {
-        id: k + 1,
-        maxProcesos: 5,
-        procesos: v
-      };
-      tmpLotes.push(tmpLote);
-    });
-    const t = JSON.parse(JSON.stringify(tmpLotes));
-    if (tmpLotes.length > 0) setLoteActivo(tmpLotes.shift());
-    setLotes(tmpLotes);
-    setStaticLotes(t);
-    console.log("lotes", tmpLotes);
-    console.log("staticlotes", t);
+    console.log("totalProcesos", props.procesos);
 
     document.addEventListener("keydown", keyDetectFunction, false);
 
@@ -93,14 +62,12 @@ const TaskManager: React.FC<Props> = props => {
         } else if (key === "i" || key === "I") {
           if (!stopped) {
             // Solo cuando no está detenido ejecutar la acción
-            console.log("interrupcion");
             pushProcesoToLoteByInterrupcion();
           }
         } else if (key === "c" || key === "C") {
           // Solo cuando está detenido ejecutar la acción
           if (stopped) {
             if (!shouldFinish()) {
-              console.log("continuar");
               setStopped(false);
             }
           }
@@ -121,41 +88,35 @@ const TaskManager: React.FC<Props> = props => {
     }
   };
 
-  const getLoteId = (proceso: IProceso) => {
-    const lote = staticLotes.filter(l =>
-      l.procesos.find(p => p.numeroPrograma == proceso.numeroPrograma)
-    );
-    return lote[0];
-  };
-
   const shouldFinish = () => {
-    return (
-      procesosFinalizado.length ===
-      staticLotes.reduce((count, lote) => count + lote.procesos.length, 0)
-    );
+    return false;
+
+    // return (
+    //   procesosFinalizado.length ===
+    //   staticLotes.reduce((count, lote) => count + lote.procesos.length, 0)
+    // );
   };
 
   const moveFromLoteToEjecucion = (currentLote: any) => {
-    const p = shiftProceso(currentLote);
-
-    if (p) {
-      console.log("AVEEER", p);
-      setProcesoEjecucion({
-        ...p,
-        tiempoTranscurrido: p.tiempoTranscurrido ? p.tiempoTranscurrido : 0,
-        tiempoRestante: p.tiempoRestante ? p.tiempoRestante : p.TME
-      });
-    } else {
-      setStopped(true);
-      setProcesoEjecucion({
-        operacionRealizar: "",
-        resultadoOperacion: "",
-        tiempoTranscurrido: -1,
-        TME: -1,
-        numeroPrograma: -1,
-        tiempoRestante: -1
-      });
-    }
+    // const p = shiftProceso(currentLote);
+    // if (p) {
+    //   console.log("AVEEER", p);
+    //   setProcesoEjecucion({
+    //     ...p,
+    //     tiempoTranscurrido: p.tiempoTranscurrido ? p.tiempoTranscurrido : 0,
+    //     tiempoRestante: p.tiempoRestante ? p.tiempoRestante : p.TME
+    //   });
+    // } else {
+    //   setStopped(true);
+    //   setProcesoEjecucion({
+    //     operacionRealizar: "",
+    //     resultadoOperacion: "",
+    //     tiempoTranscurrido: -1,
+    //     TME: -1,
+    //     numeroPrograma: -1,
+    //     tiempoRestante: -1
+    //   });
+    // }
   };
 
   const moveProcesoToFinalizado = (proceso: any) => {
@@ -200,50 +161,10 @@ const TaskManager: React.FC<Props> = props => {
           console.log("ya se acabo");
         }
       }
-
-      // if (!finished && !stopped) {
-      //   if (procesoEjecucion) {
-      //     console.log("TME", procesoEjecucion.TME);
-      //     console.log("TTrans", procesoEjecucion.tiempoTranscurrido);
-      //     console.log(
-      //       "waaa",
-      //       procesoEjecucion.TME - procesoEjecucion.tiempoTranscurrido - 1
-      //     );
-      //     setProcesoEjecucion({
-      //       ...procesoEjecucion,
-      //       tiempoTranscurrido: procesoEjecucion.tiempoTranscurrido
-      //         ? procesoEjecucion.tiempoTranscurrido + 1
-      //         : 1,
-      //       tiempoRestante:
-      //         procesoEjecucion.TME - procesoEjecucion.tiempoTranscurrido - 1
-      //     });
-      //   }
-      // }
-
       setTime(time => time + 1);
     },
     !stopped ? timeInterval : null
   );
-
-  // Usado para actualizar datos cada vuelta del timeInterval
-  // useInterval(() => {
-  //   console.log("xd", stopped);
-  //   // Actualizar proceso en ejecución
-  //   if (!finished && !stopped) {
-  //     if (procesoEjecucion) {
-  //       setProcesoEjecucion({
-  //         ...procesoEjecucion,
-  //         tiempoTranscurrido: procesoEjecucion.tiempoTranscurrido
-  //           ? procesoEjecucion.tiempoTranscurrido + 1
-  //           : 1,
-  //         tiempoRestante:
-  //           procesoEjecucion.TME - procesoEjecucion.tiempoTranscurrido - 1
-  //       });
-  //     }
-  //   }
-
-  //   setinternalClock(internalClock => internalClock + 1);
-  // }, timeInterval);
 
   const pushProcesoToFinalizadoByError = () => {
     // Tomar el proceso en ejecución y mandarlo a
@@ -257,61 +178,58 @@ const TaskManager: React.FC<Props> = props => {
   };
 
   const pushProcesoToLoteByInterrupcion = () => {
-    if (procesoEjecucion) {
-      const copyP = Object.assign({}, procesoEjecucion);
-      const copyCurrentLote: Partial<ILote> = Object.assign({}, loteActivo);
-      if (copyCurrentLote.procesos) {
-        copyCurrentLote.procesos.push(procesoEjecucion);
-      } else {
-        copyCurrentLote.procesos = [procesoEjecucion];
-      }
-      console.log("current", copyCurrentLote);
-      setLoteActivo(copyCurrentLote);
-      moveFromLoteToEjecucion(copyCurrentLote);
-    }
+    // if (procesoEjecucion) {
+    //   const copyP = Object.assign({}, procesoEjecucion);
+    //   const copyCurrentLote: Partial<ILote> = Object.assign({}, loteActivo);
+    //   if (copyCurrentLote.procesos) {
+    //     copyCurrentLote.procesos.push(procesoEjecucion);
+    //   } else {
+    //     copyCurrentLote.procesos = [procesoEjecucion];
+    //   }
+    //   console.log("current", copyCurrentLote);
+    //   setLoteActivo(copyCurrentLote);
+    //   moveFromLoteToEjecucion(copyCurrentLote);
+    // }
   };
 
-  useEffect(() => {
-    // Simplemente es para inicializar el primer proceso
-    if (lotes.length !== 0 || loteActivo) {
-      if (!c) {
-        setC(true);
-        const p = shiftProceso(false);
-        setProcesoEjecucion({
-          ...p,
-          tiempoTranscurrido: 0,
-          tiempoRestante: p.TME
-        });
-      }
-    }
-  }, [lotes]);
+  // useEffect(() => {
+  //   // Simplemente es para inicializar el primer proceso
+  //   if (lotes.length !== 0 || loteActivo) {
+  //     if (!c) {
+  //       setC(true);
+  //       const p = shiftProceso(false);
+  //       setProcesoEjecucion({
+  //         ...p,
+  //         tiempoTranscurrido: 0,
+  //         tiempoRestante: p.TME
+  //       });
+  //     }
+  //   }
+  // }, [lotes]);
 
   const shiftProceso = (l: any) => {
-    let copyCurrentLote;
-    if (l) {
-      copyCurrentLote = l;
-    } else {
-      copyCurrentLote = Object.assign({}, loteActivo);
-    }
-
-    console.log("currentLote", copyCurrentLote);
-
-    let proceso: any = null;
-    if (copyCurrentLote.procesos) proceso = copyCurrentLote.procesos.shift();
-
-    if (copyCurrentLote.procesos?.length === 0) {
-      console.log("ya no tengo", copyCurrentLote.procesos.length);
-      const tmpLotes = JSON.parse(JSON.stringify(lotes));
-      const tmpLote = tmpLotes.shift();
-      console.log("actual lotes", lotes);
-      console.log("new lotes", tmpLotes);
-      setLotes(tmpLotes);
-      setLoteActivo(tmpLote);
-    } else {
-      setLoteActivo(copyCurrentLote);
-    }
-    console.log("el proceso shift", proceso);
-    return proceso;
+    // let copyCurrentLote;
+    // if (l) {
+    //   copyCurrentLote = l;
+    // } else {
+    //   copyCurrentLote = Object.assign({}, loteActivo);
+    // }
+    // console.log("currentLote", copyCurrentLote);
+    // let proceso: any = null;
+    // if (copyCurrentLote.procesos) proceso = copyCurrentLote.procesos.shift();
+    // if (copyCurrentLote.procesos?.length === 0) {
+    //   console.log("ya no tengo", copyCurrentLote.procesos.length);
+    //   const tmpLotes = JSON.parse(JSON.stringify(lotes));
+    //   const tmpLote = tmpLotes.shift();
+    //   console.log("actual lotes", lotes);
+    //   console.log("new lotes", tmpLotes);
+    //   setLotes(tmpLotes);
+    //   setLoteActivo(tmpLote);
+    // } else {
+    //   setLoteActivo(copyCurrentLote);
+    // }
+    // console.log("el proceso shift", proceso);
+    // return proceso;
   };
   return (
     <Container>
@@ -319,46 +237,29 @@ const TaskManager: React.FC<Props> = props => {
         <Col>
           <Row>
             <Col>
-              <h2>Lotes Restantes: {lotes.length}</h2>
+              <h2>Procesos Nuevos: {props.procesos.length}</h2>
               <hr />
             </Col>
           </Row>
-          {loteActivo && (
-            <Row key={loteActivo.id}>
-              <h6>Lote #{loteActivo.id}</h6>
-              <Table striped bordered hover size="sm">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>TME</th>
-                    <th>TT</th>
-                    <th>TR</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loteActivo.procesos &&
-                    loteActivo.procesos.map(lote => {
-                      return (
-                        <tr key={lote.numeroPrograma}>
-                          <td>{lote.numeroPrograma}</td>
-                          <td>{lote.TME}</td>
-                          <td>
-                            {lote.tiempoTranscurrido
-                              ? lote.tiempoTranscurrido
-                              : 0}
-                          </td>
-                          <td>
-                            {lote.tiempoRestante
-                              ? lote.tiempoRestante
-                              : lote.TME}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </Table>
-            </Row>
-          )}
+          <Row>
+            <h6>Procesos Listos</h6>
+            <Table striped bordered hover size="sm">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>TME</th>
+                  <th>TT</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>DD</td>
+                  <td>V</td>
+                  <td>VV</td>
+                </tr>
+              </tbody>
+            </Table>
+          </Row>
         </Col>
         <Col>
           <Row>
@@ -416,7 +317,6 @@ const TaskManager: React.FC<Props> = props => {
           <Table striped bordered hover size="sm">
             <thead>
               <tr>
-                <th># Lote</th>
                 <th>N° Programa</th>
                 <th>TME</th>
                 <th>TT</th>
@@ -428,7 +328,6 @@ const TaskManager: React.FC<Props> = props => {
               {procesosFinalizado.map(p => {
                 return (
                   <tr key={p.numeroPrograma}>
-                    <td>{getLoteId(p).id}</td>
                     <td>{p.numeroPrograma}</td>
                     <td>{p.TME}</td>
                     <td>
