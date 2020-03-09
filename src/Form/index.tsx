@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { IProceso } from "../App";
+import { IProceso, EProcesoState } from "../App";
 import { Form, Button } from "react-bootstrap";
 
 interface Props {
@@ -30,9 +30,18 @@ const FormProcesos: React.FC<Props> = props => {
       numeroPrograma: id,
       operacionRealizar: op,
       resultadoOperacion: Number.parseFloat(result).toFixed(2),
-      TME: Math.floor(Math.random() * 18) + 8,
-      tiempoRestante: 0,
-      tiempoTranscurrido: 0
+      TME: Math.floor(Math.random() * (18 - 8 + 1) + 8),
+      // En un inicio, tiempoRestante debe de ser igual al TME
+      tiempoRestante: Math.floor(Math.random() * (18 - 8 + 1) + 8),
+      tiempoTranscurrido: 0,
+      tiempoLlegada: 0,
+      tiempoEspera: 0,
+      tiempoFinalizacion: 0,
+      tiempoRespuesta: 0,
+      tiempoRetorno: 0,
+      tiempoServicio: 0,
+      currentState: EProcesoState.NUEVO,
+      tiempoRespuestaChecked: false
     };
     return proceso;
   };

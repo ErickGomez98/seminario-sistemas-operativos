@@ -3,13 +3,32 @@ import TaskManager from "./TaskManager";
 import FormProcesos from "./Form";
 import { Container, Row, Col } from "react-bootstrap";
 
-export interface IProceso {
-  operacionRealizar: string;
-  resultadoOperacion: string | number;
+export interface IProcesoTimingEssentials {
   TME: number;
-  numeroPrograma?: number;
   tiempoTranscurrido: number;
   tiempoRestante: number;
+  tiempoLlegada: number;
+  tiempoFinalizacion: number;
+  tiempoRetorno: number;
+  tiempoServicio: number;
+  tiempoEspera: number;
+  tiempoRespuesta: number;
+}
+
+export enum EProcesoState {
+  NUEVO = 1,
+  LISTO = 2,
+  EJECUCION = 3,
+  BLOQUEADO = 4,
+  FINALIZADO = 5
+}
+
+export interface IProceso extends IProcesoTimingEssentials {
+  operacionRealizar: string;
+  resultadoOperacion: string | number;
+  numeroPrograma: number;
+  currentState: EProcesoState;
+  tiempoRespuestaChecked: boolean;
 }
 
 const App: React.FC = () => {
