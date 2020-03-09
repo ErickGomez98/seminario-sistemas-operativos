@@ -34,10 +34,7 @@ function cloneArrayWithoutReference(objectToClone: any) {
 }
 
 const TaskManager: React.FC<Props> = props => {
-  const [procesosNuevos, setProcesosNuevos] = useState<IProceso[]>([]);
-  const [procesosListos, setProcesosListos] = useState<IProceso[]>([]);
-  const [procesosBloqueados, setProcesosBloqueados] = useState<IProceso[]>([]);
-  const [procesoEjecucion, setProcesoEjecucion] = useState<IProceso>({
+  const blankProceso: IProceso = {
     TME: 0,
     operacionRealizar: "",
     resultadoOperacion: "",
@@ -51,8 +48,15 @@ const TaskManager: React.FC<Props> = props => {
     tiempoTranscurrido: 0,
     numeroPrograma: 0,
     currentState: EProcesoState.NUEVO,
-    tiempoRespuestaChecked: false
-  });
+    tiempoRespuestaChecked: false,
+    tiempoBloqueado: 0
+  };
+  const [procesosNuevos, setProcesosNuevos] = useState<IProceso[]>([]);
+  const [procesosListos, setProcesosListos] = useState<IProceso[]>([]);
+  const [procesosBloqueados, setProcesosBloqueados] = useState<IProceso[]>([]);
+  const [procesoEjecucion, setProcesoEjecucion] = useState<IProceso>(
+    blankProceso
+  );
   const [c, setC] = useState<boolean>(false);
   const [finished, setFinished] = useState<boolean>(false);
   const [stopped, setStopped] = useState<boolean>(false);
@@ -61,7 +65,7 @@ const TaskManager: React.FC<Props> = props => {
     []
   );
   const [time, setTime] = useState<number>(0);
-  const timeInterval = 100;
+  const timeInterval = 1000;
 
   useEffect(() => {
     inicializarPrimerosProcesos();
@@ -221,7 +225,7 @@ const TaskManager: React.FC<Props> = props => {
         } else if (key === "i" || key === "I") {
           if (!stopped) {
             // Solo cuando no está detenido ejecutar la acción
-            pushProcesoToLoteByInterrupcion();
+            moveFromEjecucionToBloqueado();
           }
         } else if (key === "c" || key === "C") {
           // Solo cuando está detenido ejecutar la acción
@@ -379,22 +383,7 @@ const TaskManager: React.FC<Props> = props => {
             setProcesoEjecucion(procesoEj);
             setProcesosListos(copyProcesosListos);
           } else {
-            setProcesoEjecucion({
-              TME: 0,
-              operacionRealizar: "",
-              resultadoOperacion: "",
-              tiempoEspera: 0,
-              tiempoFinalizacion: 0,
-              tiempoLlegada: 0,
-              tiempoRespuesta: 0,
-              tiempoRestante: 0,
-              tiempoRetorno: 0,
-              tiempoServicio: 0,
-              tiempoTranscurrido: 0,
-              numeroPrograma: 0,
-              currentState: EProcesoState.NUEVO,
-              tiempoRespuestaChecked: false
-            });
+            setProcesoEjecucion(blankProceso);
 
             updateStateProcesosNuevos();
           }
@@ -412,6 +401,9 @@ const TaskManager: React.FC<Props> = props => {
       } else {
         console.log("Ya no hay proceso en ejecución");
       }
+
+      updateStateProcesosBloqueados();
+
       // Aumentar contador global
       setTime(time => time + 1);
     }
@@ -494,11 +486,30 @@ const TaskManager: React.FC<Props> = props => {
    * Se manda a llamar cada time interval
    * Actualiza el state de los procesos Bloqueados
    */
-  const updateStateProcesosBloqueados = () => {};
+  const updateStateProcesosBloqueados = () => {
+    const copyBloqueados: IProceso[] = cloneArrayWithoutReference(
+      procesosBloqueados
+    );
+
+    const copyListos: IProceso[] = cloneArrayWithoutReference(procesosListos);
+    setProcesosBloqueados(
+      copyBloqueados.filter(proceso => {
+        if (proceso.tiempoBloqueado + 1 == 8) {
+          copyListos.push({ ...proceso, tiempoBloqueado: 0 });
+          return false;
+        } else {
+          proceso.tiempoBloqueado = proceso.tiempoBloqueado + 1;
+          return proceso;
+        }
+      })
+    );
+
+    setProcesosListos(copyListos);
+  };
 
   const countProcesosEnMemoria = () => {
     let t = procesosListos.length + procesosBloqueados.length;
-    if (procesoEjecucion.numeroPrograma == 0) {
+    if (procesoEjecucion.numeroPrograma != 0) {
       t += 1;
     }
     return t;
@@ -574,39 +585,170 @@ const TaskManager: React.FC<Props> = props => {
       setProcesoEjecucion(procesoEj);
       setProcesosListos(copyProcesosListos);
     } else {
-      setProcesoEjecucion({
-        TME: 0,
-        operacionRealizar: "",
-        resultadoOperacion: "",
-        tiempoEspera: 0,
-        tiempoFinalizacion: 0,
-        tiempoLlegada: 0,
-        tiempoRespuesta: 0,
-        tiempoRestante: 0,
-        tiempoRetorno: 0,
-        tiempoServicio: 0,
-        tiempoTranscurrido: 0,
-        numeroPrograma: 0,
-        currentState: EProcesoState.NUEVO,
-        tiempoRespuestaChecked: false
-      });
+      setProcesoEjecucion(blankProceso);
 
       updateStateProcesosNuevos();
     }
   };
 
-  const pushProcesoToLoteByInterrupcion = () => {
-    // if (procesoEjecucion) {
-    //   const copyP = Object.assign({}, procesoEjecucion);
-    //   const copyCurrentLote: Partial<ILote> = Object.assign({}, loteActivo);
-    //   if (copyCurrentLote.procesos) {
-    //     copyCurrentLote.procesos.push(procesoEjecucion);
+  const moveFromEjecucionToBloqueado = () => {
+    // Si el proceso es valido
+    if (procesoEjecucion.numeroPrograma > 0) {
+      // Mover proceso a bloqueados
+
+      const copyBloqueados: IProceso[] = cloneArrayWithoutReference(
+        procesosBloqueados
+      );
+      const copyEjecucion: IProceso = cloneArrayWithoutReference(
+        procesoEjecucion
+      );
+      copyEjecucion.currentState = EProcesoState.BLOQUEADO;
+      copyBloqueados.push(copyEjecucion);
+      setProcesosBloqueados(copyBloqueados);
+
+      //
+    }
+
+    // if (procesoEjecucion.numeroPrograma > 0) {
+    //   const copyBloqueados: IProceso[] = cloneArrayWithoutReference(
+    //     procesosBloqueados
+    //   );
+    //   const copyEjecucion: IProceso = cloneArrayWithoutReference(
+    //     procesoEjecucion
+    //   );
+    //   copyEjecucion.currentState = EProcesoState.BLOQUEADO;
+    //   copyBloqueados.push(copyEjecucion);
+    //   setProcesosBloqueados(copyBloqueados);
+
+    //   // Lo unico que debe de suceder es que un proceso listo se pase a ejecucion si
+    //   // hay espacio en memoria
+    //   if (countProcesosEnMemoria() + 1 <= 5) {
+    //     console.log("SI HAY MEMORIA DISPONIBLE");
+    //     // Si hay procesos listos, mover uno a ejecucion
+    //     if (procesosListos.length > 0) {
+    //       console.log("moviendo de listo a ejecucion");
+    //       const copyProcesosListos: IProceso[] = cloneArrayWithoutReference(
+    //         procesosListos
+    //       );
+    //       console.warn("currentProcesoListos", procesosListos);
+    //       console.warn("COPYProcesoListos", copyProcesosListos);
+    //       copyProcesosListos.map(proceso => {
+    //         proceso.tiempoEspera = proceso.tiempoEspera + 1;
+    //         proceso.tiempoRetorno = proceso.tiempoRetorno + 1;
+    //         proceso.tiempoFinalizacion =
+    //           proceso.tiempoLlegada + proceso.tiempoRetorno;
+
+    //         return proceso;
+    //       });
+    //       const procesoEj: IProceso = copyProcesosListos.shift() as IProceso;
+    //       procesoEj.currentState = EProcesoState.EJECUCION;
+    //       if (!procesoEj.tiempoRespuestaChecked)
+    //         procesoEj.tiempoRespuestaChecked = true;
+
+    //       // Ver si hay que mover un proceso nuevo a listo
+    //       if (procesosNuevos.length > 0) {
+    //         const copyNuevos: IProceso[] = cloneArrayWithoutReference(
+    //           procesosNuevos
+    //         );
+    //         const p: IProceso = copyNuevos.shift() as IProceso;
+
+    //         copyProcesosListos.push({
+    //           ...p,
+    //           currentState: EProcesoState.LISTO,
+    //           tiempoLlegada: p.tiempoLlegada + 1,
+    //           tiempoRetorno: p.tiempoRetorno + 1,
+    //           tiempoFinalizacion: p.tiempoFinalizacion + 1,
+    //           tiempoRestante: p.TME
+    //         });
+    //         setProcesosNuevos(copyNuevos);
+    //       }
+    //       setProcesoEjecucion(procesoEj);
+    //       setProcesosListos(copyProcesosListos);
+    //     } else {
+    //       // no hay procesos listos, ver si hay que mover un proceso nuevo a listo
+    //       if (procesosNuevos.length > 0) {
+    //         const copyProcesosListos: IProceso[] = cloneArrayWithoutReference(
+    //           procesosListos
+    //         );
+    //         const copyNuevos: IProceso[] = cloneArrayWithoutReference(
+    //           procesosNuevos
+    //         );
+    //         const p: IProceso = copyNuevos.shift() as IProceso;
+
+    //         copyProcesosListos.push({
+    //           ...p,
+    //           currentState: EProcesoState.LISTO,
+    //           tiempoLlegada: p.tiempoLlegada + 1,
+    //           tiempoRetorno: p.tiempoRetorno + 1,
+    //           tiempoFinalizacion: p.tiempoFinalizacion + 1,
+    //           tiempoRestante: p.TME
+    //         });
+    //         setProcesosNuevos(copyNuevos);
+    //         setProcesosListos(copyProcesosListos);
+    //       }
+    //     }
     //   } else {
-    //     copyCurrentLote.procesos = [procesoEjecucion];
+    //     // setProcesoEjecucion(copyEjecucion);
+    //     // No hay memoria
+
+    //     if (procesosListos.length > 0) {
+    //       console.log("moviendo de listo a ejecucion");
+    //       const copyProcesosListos: IProceso[] = cloneArrayWithoutReference(
+    //         procesosListos
+    //       );
+    //       console.warn("currentProcesoListos", procesosListos);
+    //       console.warn("COPYProcesoListos", copyProcesosListos);
+    //       copyProcesosListos.map(proceso => {
+    //         proceso.tiempoEspera = proceso.tiempoEspera + 1;
+    //         proceso.tiempoRetorno = proceso.tiempoRetorno + 1;
+    //         proceso.tiempoFinalizacion =
+    //           proceso.tiempoLlegada + proceso.tiempoRetorno;
+
+    //         return proceso;
+    //       });
+    //       const procesoEj: IProceso = copyProcesosListos.shift() as IProceso;
+    //       procesoEj.currentState = EProcesoState.EJECUCION;
+    //       if (!procesoEj.tiempoRespuestaChecked)
+    //         procesoEj.tiempoRespuestaChecked = true;
+
+    //       // Ver si hay que mover un proceso nuevo a listo
+    //       // if (procesosNuevos.length > 0) {
+    //       //   const copyNuevos: IProceso[] = cloneArrayWithoutReference(
+    //       //     procesosNuevos
+    //       //   );
+    //       //   const p: IProceso = copyNuevos.shift() as IProceso;
+
+    //       //   copyProcesosListos.push({
+    //       //     ...p,
+    //       //     currentState: EProcesoState.LISTO,
+    //       //     tiempoLlegada: p.tiempoLlegada + 1,
+    //       //     tiempoRetorno: p.tiempoRetorno + 1,
+    //       //     tiempoFinalizacion: p.tiempoFinalizacion + 1,
+    //       //     tiempoRestante: p.TME
+    //       //   });
+    //       //   setProcesosNuevos(copyNuevos);
+    //       // }
+    //       setProcesoEjecucion(procesoEj);
+    //       setProcesosListos(copyProcesosListos);
+    //     } else {
+    //       setProcesoEjecucion(blankProceso);
+    //     }
+
+    //     console.log("No hay memoria");
     //   }
-    //   console.log("current", copyCurrentLote);
-    //   setLoteActivo(copyCurrentLote);
-    //   moveFromLoteToEjecucion(copyCurrentLote);
+
+    //   // Tratar de mover de nuevo a listo si hay nuevos y si hay espacio
+
+    //   // const copyP = Object.assign({}, procesoEjecucion);
+    //   // const copyCurrentLote: Partial<ILote> = Object.assign({}, loteActivo);
+    //   // if (copyCurrentLote.procesos) {
+    //   //   copyCurrentLote.procesos.push(procesoEjecucion);
+    //   // } else {
+    //   //   copyCurrentLote.procesos = [procesoEjecucion];
+    //   // }
+    //   // console.log("current", copyCurrentLote);
+    //   // setLoteActivo(copyCurrentLote);
+    //   // moveFromLoteToEjecucion(copyCurrentLote);
     // }
   };
 
@@ -758,6 +900,28 @@ const TaskManager: React.FC<Props> = props => {
                     </td>
                     <td>{p.operacionRealizar}</td>
                     <td>{p.resultadoOperacion}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </Col>
+        <Col>
+          <h2>Procesos Bloqueados</h2>
+          <hr />
+          <Table striped bordered hover size="sm">
+            <thead>
+              <tr>
+                <th>N° Programa</th>
+                <th>TTB</th>
+              </tr>
+            </thead>
+            <tbody>
+              {procesosBloqueados.map(p => {
+                return (
+                  <tr key={p.numeroPrograma}>
+                    <td>{p.numeroPrograma}</td>
+                    <td>{p.tiempoBloqueado}</td>
                   </tr>
                 );
               })}

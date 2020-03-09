@@ -42,7 +42,8 @@ const FormProcesos: React.FC<Props> = props => {
       tiempoRetorno: 0,
       tiempoServicio: 0,
       currentState: EProcesoState.NUEVO,
-      tiempoRespuestaChecked: false
+      tiempoRespuestaChecked: false,
+      tiempoBloqueado: 0
     };
     return proceso;
   };

@@ -13,6 +13,7 @@ export interface IProcesoTimingEssentials {
   tiempoServicio: number;
   tiempoEspera: number;
   tiempoRespuesta: number;
+  tiempoBloqueado: number;
 }
 
 export enum EProcesoState {
