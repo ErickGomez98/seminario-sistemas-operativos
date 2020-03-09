@@ -78,8 +78,105 @@ const TaskManager: React.FC<Props> = props => {
    */
   const inicializarPrimerosProcesos = () => {
     // Clonar props.procesos a procesosNuevos
-    const pNuevos: IProceso[] = cloneArrayWithoutReference(props.procesos);
-
+    // const pNuevos: IProceso[] = cloneArrayWithoutReference(props.procesos);
+    const pNuevos: IProceso[] = [
+      {
+        TME: 16,
+        currentState: EProcesoState.NUEVO,
+        numeroPrograma: 1,
+        operacionRealizar: "7%1",
+        resultadoOperacion: "0",
+        tiempoEspera: 0,
+        tiempoFinalizacion: 0,
+        tiempoLlegada: 0,
+        tiempoRespuesta: 0,
+        tiempoRespuestaChecked: false,
+        tiempoRestante: 0,
+        tiempoRetorno: 0,
+        tiempoServicio: 0,
+        tiempoTranscurrido: 0
+      },
+      {
+        TME: 9,
+        currentState: EProcesoState.NUEVO,
+        numeroPrograma: 2,
+        operacionRealizar: "8+5",
+        resultadoOperacion: "13",
+        tiempoEspera: 0,
+        tiempoFinalizacion: 0,
+        tiempoLlegada: 0,
+        tiempoRespuesta: 0,
+        tiempoRespuestaChecked: false,
+        tiempoRestante: 0,
+        tiempoRetorno: 0,
+        tiempoServicio: 0,
+        tiempoTranscurrido: 0
+      },
+      {
+        TME: 16,
+        currentState: EProcesoState.NUEVO,
+        numeroPrograma: 3,
+        operacionRealizar: "2-1",
+        resultadoOperacion: "1",
+        tiempoEspera: 0,
+        tiempoFinalizacion: 0,
+        tiempoLlegada: 0,
+        tiempoRespuesta: 0,
+        tiempoRespuestaChecked: false,
+        tiempoRestante: 0,
+        tiempoRetorno: 0,
+        tiempoServicio: 0,
+        tiempoTranscurrido: 0
+      },
+      {
+        TME: 11,
+        currentState: EProcesoState.NUEVO,
+        numeroPrograma: 4,
+        operacionRealizar: "3%8",
+        resultadoOperacion: "3",
+        tiempoEspera: 0,
+        tiempoFinalizacion: 0,
+        tiempoLlegada: 0,
+        tiempoRespuesta: 0,
+        tiempoRespuestaChecked: false,
+        tiempoRestante: 0,
+        tiempoRetorno: 0,
+        tiempoServicio: 0,
+        tiempoTranscurrido: 0
+      },
+      {
+        TME: 14,
+        currentState: EProcesoState.NUEVO,
+        numeroPrograma: 5,
+        operacionRealizar: "6/8",
+        resultadoOperacion: "0",
+        tiempoEspera: 0,
+        tiempoFinalizacion: 0,
+        tiempoLlegada: 0,
+        tiempoRespuesta: 0,
+        tiempoRespuestaChecked: false,
+        tiempoRestante: 0,
+        tiempoRetorno: 0,
+        tiempoServicio: 0,
+        tiempoTranscurrido: 0
+      },
+      {
+        TME: 13,
+        currentState: EProcesoState.NUEVO,
+        numeroPrograma: 6,
+        operacionRealizar: "6/6",
+        resultadoOperacion: "1",
+        tiempoEspera: 0,
+        tiempoFinalizacion: 0,
+        tiempoLlegada: 0,
+        tiempoRespuesta: 0,
+        tiempoRespuestaChecked: false,
+        tiempoRestante: 0,
+        tiempoRetorno: 0,
+        tiempoServicio: 0,
+        tiempoTranscurrido: 0
+      }
+    ];
     let pListos: IProceso[];
     // Si hay más de 5 procesos mover solo 5 a procesos listos
     if (pNuevos.length > 5) {
@@ -202,6 +299,8 @@ const TaskManager: React.FC<Props> = props => {
     // a la cantidad de procesos iniciales
     if (shouldFinish()) {
       console.log("Programa finalizado");
+      // Aumentar contador global
+      setTime(time => time + 1);
       setFinished(true);
       setStopped(true);
 
@@ -221,17 +320,38 @@ const TaskManager: React.FC<Props> = props => {
           );
           copyProcesosFinalizados.push({
             ...procesoEjecucion,
-            currentState: EProcesoState.FINALIZADO
+            currentState: EProcesoState.FINALIZADO,
+            tiempoRetorno: procesoEjecucion.tiempoRetorno + 1,
+            tiempoFinalizacion: procesoEjecucion.tiempoFinalizacion + 1,
+            tiempoServicio: procesoEjecucion.tiempoServicio + 1,
+            tiempoTranscurrido: procesoEjecucion.tiempoTranscurrido + 1,
+            tiempoRestante: procesoEjecucion.tiempoRestante - 1,
+            tiempoEspera:
+              procesoEjecucion.tiempoEspera == 0
+                ? 0
+                : procesoEjecucion.tiempoEspera + 1
           });
           setProcesosFinalizados(copyProcesosFinalizados);
 
           if (procesosListos.length > 0) {
             console.log("moviendo de listo a ejecucion");
-            const copyProcesosListos = cloneArrayWithoutReference(
+            const copyProcesosListos: IProceso[] = cloneArrayWithoutReference(
               procesosListos
             );
             console.warn("currentProcesoListos", procesosListos);
             console.warn("COPYProcesoListos", copyProcesosListos);
+            copyProcesosListos.map(proceso => {
+              proceso.tiempoRespuesta = !proceso.tiempoRespuestaChecked
+                ? proceso.tiempoRespuesta + 1
+                : proceso.tiempoRespuesta;
+
+              proceso.tiempoEspera = proceso.tiempoEspera + 1;
+              proceso.tiempoRetorno = proceso.tiempoRetorno + 1;
+              proceso.tiempoFinalizacion =
+                proceso.tiempoLlegada + proceso.tiempoRetorno;
+
+              return proceso;
+            });
             const procesoEj: IProceso = copyProcesosListos.shift() as IProceso;
             procesoEj.currentState = EProcesoState.EJECUCION;
             if (!procesoEj.tiempoRespuestaChecked)
@@ -246,7 +366,12 @@ const TaskManager: React.FC<Props> = props => {
               copyProcesosListos.push({
                 ...p,
                 currentState: EProcesoState.LISTO,
-                tiempoLlegada: p.tiempoLlegada
+                tiempoLlegada: p.tiempoLlegada + 1,
+                tiempoRetorno: p.tiempoRetorno + 1,
+                tiempoFinalizacion: p.tiempoFinalizacion + 1,
+                tiempoServicio: p.tiempoServicio + 1,
+                tiempoTranscurrido: p.tiempoTranscurrido + 1,
+                tiempoRestante: p.tiempoRestante - 1
               });
               setProcesosNuevos(copyNuevos);
             } else {
@@ -283,105 +408,11 @@ const TaskManager: React.FC<Props> = props => {
 
           updateStateProcesosNuevos();
         }
+        // Aumentar contador global
+        setTime(time => time + 1);
       } else {
         console.log("Ya no hay proceso en ejecución");
       }
-
-      //   // Actualizar state de procesos Nuevos
-      //   setTimeout(() => {
-      //     updateStateProcesosNuevos();
-      //   }, 500);
-
-      //   // Actualizar state de procesos Bloqueados
-      //   updateStateProcesosBloqueados();
-    }
-
-    // Aumentar contador global
-    setTime(time => time + 1);
-  };
-
-  /**
-   * Mueve un proceso de proceso en ejecución a procesos finalizados
-   */
-  // const moveProcesoEjecucionToFinalizado = () => {
-  //   console.log("muevelo a terminados");
-  //   const copyProcesosFinalizados: IProceso[] = cloneArrayWithoutReference(
-  //     procesosFinalizados
-  //   );
-  //   copyProcesosFinalizados.push({
-  //     ...procesoEjecucion,
-  //     currentState: EProcesoState.FINALIZADO
-  //   });
-  //   setProcesosFinalizados(copyProcesosFinalizados);
-  //   moveProcesoListoToEjecucion();
-  // };
-
-  // const moveProcesoNuevoToListo = () => {
-  //   if (countProcesosEnMemoria() < 5) {
-  //     if (procesosNuevos.length > 0) {
-  //       console.log("SI HAY ESPACIO, MOVER NUEVO TO LISTO");
-  //       const copyNuevos: IProceso[] = cloneArrayWithoutReference(
-  //         procesosNuevos
-  //       );
-  //       const p: IProceso = copyNuevos.shift() as IProceso;
-  //       const copyListos: IProceso[] = cloneArrayWithoutReference(
-  //         procesosListos
-  //       );
-  //       copyListos.push({
-  //         ...p,
-  //         currentState: EProcesoState.LISTO,
-  //         tiempoLlegada: p.tiempoLlegada + 1
-  //       });
-  //       setProcesosListos(copyListos);
-  //       setProcesosNuevos(copyNuevos);
-  //     }
-  //   } else {
-  //     console.error("NO HAY ESPACIO EN MEMORIA");
-  //   }
-  // };
-
-  /**
-   * De la lista de procesos listos moverlo a proceso en ejecución.
-   */
-  const moveProcesoListoToEjecucion = () => {
-    if (procesosListos.length > 0) {
-      console.log("moviendo de listo a ejecucion");
-      const copyProcesosListos = cloneArrayWithoutReference(procesosListos);
-      console.warn("currentProcesoListos", procesosListos);
-      console.warn("COPYProcesoListos", copyProcesosListos);
-      const procesoEj: IProceso = copyProcesosListos.shift() as IProceso;
-      procesoEj.currentState = EProcesoState.EJECUCION;
-      if (!procesoEj.tiempoRespuestaChecked)
-        procesoEj.tiempoRespuestaChecked = true;
-
-      // mover proceso nuevo a listo
-      const copyNuevos: IProceso[] = cloneArrayWithoutReference(procesosNuevos);
-      const p: IProceso = copyNuevos.shift() as IProceso;
-      copyProcesosListos.push({
-        ...p,
-        currentState: EProcesoState.LISTO,
-        tiempoLlegada: p.tiempoLlegada + 1
-      });
-      setProcesoEjecucion(procesoEj);
-      setProcesosListos(copyProcesosListos);
-      setProcesosNuevos(copyNuevos);
-    } else {
-      setProcesoEjecucion({
-        TME: 0,
-        operacionRealizar: "",
-        resultadoOperacion: "",
-        tiempoEspera: 0,
-        tiempoFinalizacion: 0,
-        tiempoLlegada: 0,
-        tiempoRespuesta: 0,
-        tiempoRestante: 0,
-        tiempoRetorno: 0,
-        tiempoServicio: 0,
-        tiempoTranscurrido: 0,
-        numeroPrograma: 0,
-        currentState: EProcesoState.NUEVO,
-        tiempoRespuestaChecked: false
-      });
     }
   };
 
@@ -390,7 +421,7 @@ const TaskManager: React.FC<Props> = props => {
    * Se tendrá que mover cuando el tiempo maximo estimado sea igual al tiempo transcurrido + 1
    */
   const shouldProcesoEjecucionMoveToFinalizado = () => {
-    return procesoEjecucion.TME === procesoEjecucion.tiempoTranscurrido;
+    return procesoEjecucion.TME === procesoEjecucion.tiempoTranscurrido + 1;
   };
 
   /**
@@ -480,11 +511,88 @@ const TaskManager: React.FC<Props> = props => {
   const pushProcesoToFinalizadoByError = () => {
     // Tomar el proceso en ejecución y mandarlo a
     // la lista de procesosFinalizados
-    if (procesoEjecucion) {
-      const copyP = Object.assign({}, procesoEjecucion);
-      copyP.resultadoOperacion = "Error";
-      setProcesoEjecucion(copyP);
-      moveProcesoToFinalizado(copyP);
+    // if (procesoEjecucion) {
+    //   const copyP = cloneArrayWithoutReference(procesoEjecucion);
+    //   copyP.resultadoOperacion = "Error";
+    //   setProcesoEjecucion(copyP);
+    //   moveProcesoToFinalizado(copyP);
+
+    const copyProcesosFinalizados: IProceso[] = cloneArrayWithoutReference(
+      procesosFinalizados
+    );
+    copyProcesosFinalizados.push({
+      ...procesoEjecucion,
+      currentState: EProcesoState.FINALIZADO,
+      resultadoOperacion: "Error"
+    });
+    setProcesosFinalizados(copyProcesosFinalizados);
+
+    if (procesosListos.length > 0) {
+      console.log("moviendo de listo a ejecucion");
+      const copyProcesosListos: IProceso[] = cloneArrayWithoutReference(
+        procesosListos
+      );
+      console.warn("currentProcesoListos", procesosListos);
+      console.warn("COPYProcesoListos", copyProcesosListos);
+      copyProcesosListos.map(proceso => {
+        proceso.tiempoRespuesta = !proceso.tiempoRespuestaChecked
+          ? proceso.tiempoRespuesta + 1
+          : proceso.tiempoRespuesta;
+
+        proceso.tiempoEspera = proceso.tiempoEspera + 1;
+        proceso.tiempoRetorno = proceso.tiempoRetorno + 1;
+        proceso.tiempoFinalizacion =
+          proceso.tiempoLlegada + proceso.tiempoRetorno;
+
+        return proceso;
+      });
+      const procesoEj: IProceso = copyProcesosListos.shift() as IProceso;
+      procesoEj.currentState = EProcesoState.EJECUCION;
+      if (!procesoEj.tiempoRespuestaChecked)
+        procesoEj.tiempoRespuestaChecked = true;
+
+      // mover proceso nuevo a listo
+      if (procesosNuevos.length > 0) {
+        const copyNuevos: IProceso[] = cloneArrayWithoutReference(
+          procesosNuevos
+        );
+        const p: IProceso = copyNuevos.shift() as IProceso;
+        copyProcesosListos.push({
+          ...p,
+          currentState: EProcesoState.LISTO,
+          tiempoLlegada: p.tiempoLlegada + 1,
+          tiempoRetorno: p.tiempoRetorno + 1,
+          tiempoFinalizacion: p.tiempoFinalizacion + 1,
+          tiempoServicio: p.tiempoServicio + 1,
+          tiempoTranscurrido: p.tiempoTranscurrido + 1,
+          tiempoRestante: p.tiempoRestante - 1
+        });
+        setProcesosNuevos(copyNuevos);
+      } else {
+        updateStateProcesosNuevos();
+      }
+
+      setProcesoEjecucion(procesoEj);
+      setProcesosListos(copyProcesosListos);
+    } else {
+      setProcesoEjecucion({
+        TME: 0,
+        operacionRealizar: "",
+        resultadoOperacion: "",
+        tiempoEspera: 0,
+        tiempoFinalizacion: 0,
+        tiempoLlegada: 0,
+        tiempoRespuesta: 0,
+        tiempoRestante: 0,
+        tiempoRetorno: 0,
+        tiempoServicio: 0,
+        tiempoTranscurrido: 0,
+        numeroPrograma: 0,
+        currentState: EProcesoState.NUEVO,
+        tiempoRespuestaChecked: false
+      });
+
+      updateStateProcesosNuevos();
     }
   };
 
@@ -661,6 +769,48 @@ const TaskManager: React.FC<Props> = props => {
       <Row>
         <Col className="margin-auto text-center">
           <h3>Contador: {time}</h3>
+        </Col>
+      </Row>
+
+      <Row>
+        <Col className="margin-auto text-center">
+          <h3>Tabla Final</h3>
+          <Table striped bordered hover size="sm">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Op</th>
+                <th>Res</th>
+                <th>TME</th>
+                <th>T restante</th>
+                <th>T transcurrido</th>
+                <th>T llegada</th>
+                <th>T espera</th>
+                <th>T finalización</th>
+                <th>T respuesta</th>
+                <th>T retorno</th>
+                <th>T servicio</th>
+              </tr>
+            </thead>
+            <tbody>
+              {procesosFinalizados.map(proceso => (
+                <tr>
+                  <td>{proceso.numeroPrograma}</td>
+                  <td>{proceso.operacionRealizar}</td>
+                  <td>{proceso.resultadoOperacion}</td>
+                  <td>{proceso.TME}</td>
+                  <td>{proceso.tiempoRestante}</td>
+                  <td>{proceso.tiempoTranscurrido}</td>
+                  <td>{proceso.tiempoLlegada}</td>
+                  <td>{proceso.tiempoEspera}</td>
+                  <td>{proceso.tiempoFinalizacion}</td>
+                  <td>{proceso.tiempoRespuesta}</td>
+                  <td>{proceso.tiempoRetorno}</td>
+                  <td>{proceso.tiempoServicio}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </Col>
       </Row>
     </Container>
