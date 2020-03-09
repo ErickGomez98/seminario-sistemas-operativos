@@ -78,105 +78,105 @@ const TaskManager: React.FC<Props> = props => {
    */
   const inicializarPrimerosProcesos = () => {
     // Clonar props.procesos a procesosNuevos
-    // const pNuevos: IProceso[] = cloneArrayWithoutReference(props.procesos);
-    const pNuevos: IProceso[] = [
-      {
-        TME: 16,
-        currentState: EProcesoState.NUEVO,
-        numeroPrograma: 1,
-        operacionRealizar: "7%1",
-        resultadoOperacion: "0",
-        tiempoEspera: 0,
-        tiempoFinalizacion: 0,
-        tiempoLlegada: 0,
-        tiempoRespuesta: 0,
-        tiempoRespuestaChecked: false,
-        tiempoRestante: 0,
-        tiempoRetorno: 0,
-        tiempoServicio: 0,
-        tiempoTranscurrido: 0
-      },
-      {
-        TME: 9,
-        currentState: EProcesoState.NUEVO,
-        numeroPrograma: 2,
-        operacionRealizar: "8+5",
-        resultadoOperacion: "13",
-        tiempoEspera: 0,
-        tiempoFinalizacion: 0,
-        tiempoLlegada: 0,
-        tiempoRespuesta: 0,
-        tiempoRespuestaChecked: false,
-        tiempoRestante: 0,
-        tiempoRetorno: 0,
-        tiempoServicio: 0,
-        tiempoTranscurrido: 0
-      },
-      {
-        TME: 16,
-        currentState: EProcesoState.NUEVO,
-        numeroPrograma: 3,
-        operacionRealizar: "2-1",
-        resultadoOperacion: "1",
-        tiempoEspera: 0,
-        tiempoFinalizacion: 0,
-        tiempoLlegada: 0,
-        tiempoRespuesta: 0,
-        tiempoRespuestaChecked: false,
-        tiempoRestante: 0,
-        tiempoRetorno: 0,
-        tiempoServicio: 0,
-        tiempoTranscurrido: 0
-      },
-      {
-        TME: 11,
-        currentState: EProcesoState.NUEVO,
-        numeroPrograma: 4,
-        operacionRealizar: "3%8",
-        resultadoOperacion: "3",
-        tiempoEspera: 0,
-        tiempoFinalizacion: 0,
-        tiempoLlegada: 0,
-        tiempoRespuesta: 0,
-        tiempoRespuestaChecked: false,
-        tiempoRestante: 0,
-        tiempoRetorno: 0,
-        tiempoServicio: 0,
-        tiempoTranscurrido: 0
-      },
-      {
-        TME: 14,
-        currentState: EProcesoState.NUEVO,
-        numeroPrograma: 5,
-        operacionRealizar: "6/8",
-        resultadoOperacion: "0",
-        tiempoEspera: 0,
-        tiempoFinalizacion: 0,
-        tiempoLlegada: 0,
-        tiempoRespuesta: 0,
-        tiempoRespuestaChecked: false,
-        tiempoRestante: 0,
-        tiempoRetorno: 0,
-        tiempoServicio: 0,
-        tiempoTranscurrido: 0
-      },
-      {
-        TME: 13,
-        currentState: EProcesoState.NUEVO,
-        numeroPrograma: 6,
-        operacionRealizar: "6/6",
-        resultadoOperacion: "1",
-        tiempoEspera: 0,
-        tiempoFinalizacion: 0,
-        tiempoLlegada: 0,
-        tiempoRespuesta: 0,
-        tiempoRespuestaChecked: false,
-        tiempoRestante: 0,
-        tiempoRetorno: 0,
-        tiempoServicio: 0,
-        tiempoTranscurrido: 0
-      }
-    ];
+    const pNuevos: IProceso[] = cloneArrayWithoutReference(props.procesos);
+    // const pNuevos: IProceso[] = [
+    //   {
+    //     TME: 16,
+    //     currentState: EProcesoState.NUEVO,
+    //     numeroPrograma: 1,
+    //     operacionRealizar: "7%1",
+    //     resultadoOperacion: "0",
+    //     tiempoEspera: 0,
+    //     tiempoFinalizacion: 0,
+    //     tiempoLlegada: 0,
+    //     tiempoRespuesta: 0,
+    //     tiempoRespuestaChecked: false,
+    //     tiempoRestante: 0,
+    //     tiempoRetorno: 0,
+    //     tiempoServicio: 0,
+    //     tiempoTranscurrido: 0
+    //   },
+    //   {
+    //     TME: 9,
+    //     currentState: EProcesoState.NUEVO,
+    //     numeroPrograma: 2,
+    //     operacionRealizar: "8+5",
+    //     resultadoOperacion: "13",
+    //     tiempoEspera: 0,
+    //     tiempoFinalizacion: 0,
+    //     tiempoLlegada: 0,
+    //     tiempoRespuesta: 0,
+    //     tiempoRespuestaChecked: false,
+    //     tiempoRestante: 0,
+    //     tiempoRetorno: 0,
+    //     tiempoServicio: 0,
+    //     tiempoTranscurrido: 0
+    //   },
+    //   {
+    //     TME: 16,
+    //     currentState: EProcesoState.NUEVO,
+    //     numeroPrograma: 3,
+    //     operacionRealizar: "2-1",
+    //     resultadoOperacion: "1",
+    //     tiempoEspera: 0,
+    //     tiempoFinalizacion: 0,
+    //     tiempoLlegada: 0,
+    //     tiempoRespuesta: 0,
+    //     tiempoRespuestaChecked: false,
+    //     tiempoRestante: 0,
+    //     tiempoRetorno: 0,
+    //     tiempoServicio: 0,
+    //     tiempoTranscurrido: 0
+    //   },
+    //   {
+    //     TME: 11,
+    //     currentState: EProcesoState.NUEVO,
+    //     numeroPrograma: 4,
+    //     operacionRealizar: "3%8",
+    //     resultadoOperacion: "3",
+    //     tiempoEspera: 0,
+    //     tiempoFinalizacion: 0,
+    //     tiempoLlegada: 0,
+    //     tiempoRespuesta: 0,
+    //     tiempoRespuestaChecked: false,
+    //     tiempoRestante: 0,
+    //     tiempoRetorno: 0,
+    //     tiempoServicio: 0,
+    //     tiempoTranscurrido: 0
+    //   },
+    //   {
+    //     TME: 14,
+    //     currentState: EProcesoState.NUEVO,
+    //     numeroPrograma: 5,
+    //     operacionRealizar: "6/8",
+    //     resultadoOperacion: "0",
+    //     tiempoEspera: 0,
+    //     tiempoFinalizacion: 0,
+    //     tiempoLlegada: 0,
+    //     tiempoRespuesta: 0,
+    //     tiempoRespuestaChecked: false,
+    //     tiempoRestante: 0,
+    //     tiempoRetorno: 0,
+    //     tiempoServicio: 0,
+    //     tiempoTranscurrido: 0
+    //   },
+    //   {
+    //     TME: 13,
+    //     currentState: EProcesoState.NUEVO,
+    //     numeroPrograma: 6,
+    //     operacionRealizar: "6/6",
+    //     resultadoOperacion: "1",
+    //     tiempoEspera: 0,
+    //     tiempoFinalizacion: 0,
+    //     tiempoLlegada: 0,
+    //     tiempoRespuesta: 0,
+    //     tiempoRespuestaChecked: false,
+    //     tiempoRestante: 0,
+    //     tiempoRetorno: 0,
+    //     tiempoServicio: 0,
+    //     tiempoTranscurrido: 0
+    //   }
+    // ];
     let pListos: IProceso[];
     // Si hay más de 5 procesos mover solo 5 a procesos listos
     if (pNuevos.length > 5) {
@@ -299,8 +299,8 @@ const TaskManager: React.FC<Props> = props => {
     // a la cantidad de procesos iniciales
     if (shouldFinish()) {
       console.log("Programa finalizado");
-      // Aumentar contador global
-      setTime(time => time + 1);
+      // // Aumentar contador global
+      // setTime(time => time + 1);
       setFinished(true);
       setStopped(true);
 
@@ -369,9 +369,8 @@ const TaskManager: React.FC<Props> = props => {
                 tiempoLlegada: p.tiempoLlegada + 1,
                 tiempoRetorno: p.tiempoRetorno + 1,
                 tiempoFinalizacion: p.tiempoFinalizacion + 1,
-                tiempoServicio: p.tiempoServicio + 1,
-                tiempoTranscurrido: p.tiempoTranscurrido + 1,
-                tiempoRestante: p.tiempoRestante - 1
+                tiempoServicio: p.tiempoServicio,
+                tiempoRestante: p.TME
               });
               setProcesosNuevos(copyNuevos);
             } else {
@@ -408,11 +407,14 @@ const TaskManager: React.FC<Props> = props => {
 
           updateStateProcesosNuevos();
         }
-        // Aumentar contador global
-        setTime(time => time + 1);
+
+        // // Aumentar contador global
+        // setTime(time => time + 1);
       } else {
         console.log("Ya no hay proceso en ejecución");
       }
+      // Aumentar contador global
+      setTime(time => time + 1);
     }
   };
 
@@ -563,9 +565,8 @@ const TaskManager: React.FC<Props> = props => {
           tiempoLlegada: p.tiempoLlegada + 1,
           tiempoRetorno: p.tiempoRetorno + 1,
           tiempoFinalizacion: p.tiempoFinalizacion + 1,
-          tiempoServicio: p.tiempoServicio + 1,
-          tiempoTranscurrido: p.tiempoTranscurrido + 1,
-          tiempoRestante: p.tiempoRestante - 1
+          tiempoServicio: p.tiempoServicio,
+          tiempoRestante: p.TME
         });
         setProcesosNuevos(copyNuevos);
       } else {

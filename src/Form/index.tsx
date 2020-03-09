@@ -26,13 +26,14 @@ const FormProcesos: React.FC<Props> = props => {
 
   const generarProcesoAleatorio = (id: number) => {
     const [op, result] = genRandomOperation();
+    const TME = Math.floor(Math.random() * (18 - 8 + 1) + 8);
     const proceso: IProceso = {
       numeroPrograma: id,
       operacionRealizar: op,
       resultadoOperacion: Number.parseFloat(result).toFixed(2),
-      TME: Math.floor(Math.random() * (18 - 8 + 1) + 8),
+      TME,
       // En un inicio, tiempoRestante debe de ser igual al TME
-      tiempoRestante: Math.floor(Math.random() * (18 - 8 + 1) + 8),
+      tiempoRestante: TME,
       tiempoTranscurrido: 0,
       tiempoLlegada: 0,
       tiempoEspera: 0,
