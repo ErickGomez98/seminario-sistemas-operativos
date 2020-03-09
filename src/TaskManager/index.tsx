@@ -369,7 +369,6 @@ const TaskManager: React.FC<Props> = props => {
                 tiempoLlegada: p.tiempoLlegada + 1,
                 tiempoRetorno: p.tiempoRetorno + 1,
                 tiempoFinalizacion: p.tiempoFinalizacion + 1,
-                tiempoServicio: p.tiempoServicio,
                 tiempoRestante: p.TME
               });
               setProcesosNuevos(copyNuevos);
@@ -565,7 +564,6 @@ const TaskManager: React.FC<Props> = props => {
           tiempoLlegada: p.tiempoLlegada + 1,
           tiempoRetorno: p.tiempoRetorno + 1,
           tiempoFinalizacion: p.tiempoFinalizacion + 1,
-          tiempoServicio: p.tiempoServicio,
           tiempoRestante: p.TME
         });
         setProcesosNuevos(copyNuevos);
